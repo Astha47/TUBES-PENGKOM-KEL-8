@@ -153,3 +153,4 @@ while ulang:
     deenkrip = EnigmaMiniDeEncrypt(enkrip)
     print("Hasil deenkrip : ",deenkrip)
     print()
+"""
