@@ -144,6 +144,7 @@ for a in range (3):
     print("")
 
 """
+"""
 ulang = True
 while ulang:
     text = input("Yang akan dienkripsi : ")
