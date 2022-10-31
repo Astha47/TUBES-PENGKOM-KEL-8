@@ -236,5 +236,7 @@ def LoginMenu(Accountinfo,Accountpass):
         DelAccount()
 
     return IndexAccount
-    
-LoginMenu()
+
+Accountinfo = []
+Accountpass = []
+LoginMenu(Accountinfo,Accountpass)
