@@ -162,7 +162,8 @@ def SearchResult(matrix,index):
     return hasil
 
 def SearchAlgorithm(matrix,keyword):
-    Result = SearchResult(matrix,ReArrangeIntIndex(UnDuplicate(SearchEngine(matrix,keyword))))
+    Result = ReArrangeIntIndex(UnDuplicate(SearchEngine(matrix,keyword)))
+    return Result
 
 # AccountOrganizer
 import csv
@@ -200,7 +201,7 @@ def LoginMainMenu():
             error = True
     return UserChoice
 
-def SignUp(Accountinfo,Accountpass):
+def SignUp(Accountinfo,Accountpass,DataList):
     actionusername = True
     actionpass = True
     error_usernameadded = False
@@ -314,10 +315,25 @@ def SignUp(Accountinfo,Accountpass):
         Accountpass = Accountpass + [password]
         UserData = Accountinfo + Accountpass
         WritingAccountData(UserData)
-        
-    LoginMenu(Accountinfo,Accountpass)
 
-def SignIn(Accountinfo,Accountpass):
+        # Creating Database
+        duplicationdatabase = True
+        while duplicationdatabase:
+            namecsv = RandomDatabaseNameMaker()
+            duplicationdatabase = False
+            for i in range(int(len(DataList))):
+                if namecsv == DataList[i]:
+                    duplicationdatabase = True
+                print(namecsv)
+            if duplicationdatabase == False:
+                CreateNewFile(namecsv)
+                DataList += [namecsv]
+                print(DataList)
+                WritingDatalist(DataList)
+
+    LoginMenu(Accountinfo,Accountpass,DataList)
+
+def SignIn(Accountinfo,Accountpass,DataList):
     actionlogin = True
     actionpass = True
     error_username = False
@@ -376,9 +392,9 @@ def SignIn(Accountinfo,Accountpass):
     Accountinfo = Accountinfo + [username]
     Accountpass = Accountpass + [password]
 
-    MainMenu(AccountIndex,username)
+    AccountDataLoader(AccountIndex,DataList)
 
-def DelAccount(Accountinfo,Accountpass):
+def DelAccount(Accountinfo,Accountpass,DataList):
     actionlogin = True
     actionpass = True
     error_username = False
@@ -464,13 +480,13 @@ def DelAccount(Accountinfo,Accountpass):
             # Deleting
             if confirm == "y":
                 newAccountinfo = []
-                for g in range (len(Accountinfo)):
+                for g in range (int(len(Accountinfo))):
                     if g != AccountIndex:
                         newAccountinfo += [Accountinfo[g]]
                 Accountinfo = newAccountinfo
 
                 newAccountpass = []
-                for h in range (len(Accountpass)):
+                for h in range (int(len(Accountpass))):
                     if h != AccountIndex:
                         newAccountpass += [Accountpass[h]]
                 Accountpass = newAccountpass
@@ -478,6 +494,13 @@ def DelAccount(Accountinfo,Accountpass):
                 # ReWriting
                 UserData = Accountinfo + Accountpass
                 WritingAccountData(UserData)
+
+                newDataList = []
+                for f in range (int(len(DataList))):
+                    if f != AccountIndex:
+                        newDataList += [DataList[f]]
+                DataList = newDataList
+                WritingDatalist(DataList)
 
                 # LoadingScreen
                 for i in range(4):
@@ -508,15 +531,15 @@ def DelAccount(Accountinfo,Accountpass):
 
     MainProgram()
 
-def LoginMenu(Accountinfo,Accountpass):
+def LoginMenu(Accountinfo,Accountpass,DataList):
     select = LoginMainMenu()
 
     if select == "1":
-        IndexAccount = SignIn(Accountinfo,Accountpass)
+        IndexAccount = SignIn(Accountinfo,Accountpass,DataList)
     elif select == "2":
-        SignUp(Accountinfo,Accountpass)
+        SignUp(Accountinfo,Accountpass,DataList)
     elif select == "3":
-        DelAccount(Accountinfo,Accountpass)
+        DelAccount(Accountinfo,Accountpass,DataList)
 
     return IndexAccount
 
@@ -531,10 +554,32 @@ def LoadingAccountData():
                 code = code + [int(Raw[i+1])]
             UserData += EnigmaMiniDeEncrypt(code)
     return UserData
-        
+
+def LoadingUserDatalist():
+    DataList = []
+    with open("datalist.csv") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            Raw = row
+            code = [Raw[0]]
+            for i in range(len(Raw)-1):
+                code = code + [int(Raw[i+1])]
+            DataList += EnigmaMiniDeEncrypt(code)
+        return DataList
+
+def UserDataLoader(target):
+    accountData = []
+    with open(target) as file:
+        reader = csv.reader(file)
+        for row in reader:
+            Raw = row
+            code = [Raw[0]]
+            for i in range(len(Raw)-1):
+                code = code + [int(Raw[i+1])]
+            accountData += EnigmaMiniDeEncrypt(code)
+    return accountData
+
 def WritingAccountData(UserData):
-    #phoneData = ['-mZ6', 14, 72, 2, 59, 3, 66, 15, 61]
-    #phoneData = [['v/fe', 8, 63, 6, 11, 10, 61, 4, 43],['v/fe', 8, 63, 6, 11, 10, 61, 4, 43]]
     
     code = []
     for i in range(int(len(UserData))):
@@ -545,20 +590,62 @@ def WritingAccountData(UserData):
         csv.writer(s).writerow(code[i])
     s.close()
 
+def WritingDatalist(DataList):
+    
+    code = []
+    for i in range(int(len(DataList))):
+        code += [EnigmaMiniEncrypt([DataList[i]])]
+
+    s = open("datalist.csv", 'w', newline='')
+    for i in range (len(code)):
+        csv.writer(s).writerow(code[i])
+    s.close()
+
+def RandomDatabaseNameMaker():
+    # ini bisa membuat 1,220,096,908,800 variasi, cukup untuk menyimpan kontak selingkuhan anda
+    name = ''.join(random.choice("QWERTYUIOPASDFGHJKLZXCVBNM1234567890") for i in range(8))
+    name +=".csv"
+    return name
+
+def CreateNewFile(string):
+    f= open(string,"w+")
+    f.close()
+
+def AccountDataLoader(accountIndex,DataList):
+    # Loader File
+    target = DataList[accountIndex]
+    accountData = UserDataLoader(target)
+    
+    # Separator
+    DataName = []
+    DataNum = []
+
+    for i in range(int(len(accountData)/2)):
+        DataName += accountData[i]
+    for i in range(int(len(accountData)/2)):
+        DataNum += accountData[i+int(len(accountData)/2)]
+    
+    # Main menu launcher
+    MainMenuController(DataName,DataNum,target)
+
+# Contact Organizer
+
+
 # Main program
 def MainProgram():
     UserData = LoadingAccountData()
     username = []
     password = []
+    datalist = LoadingUserDatalist()
     
     for i in range (int(len(UserData)/2)):
         username += [UserData[i]]
     for j in range (int(len(UserData)/2)):
         password += [UserData[int(j+(len(UserData)/2))]]
 
-    LoginMenu(username,password)
+    LoginMenu(username,password,datalist)
 
-def MainMenu(accountIndex,username):
+def MainMenu():
     action = True
     errornotification = "   Input yang ada masukkan salah, coba lagi"
     error = False
@@ -569,7 +656,7 @@ def MainMenu(accountIndex,username):
         print("|                My_PhoneBook                 |")
         print("===============================================")
         print("|                                             |")
-        print("|               Cari Kontak (1)               |")
+        print("|               Buka Kontak (1)               |")
         print("|                                             |")
         print("|            Tambahkan Kontak (2)             |")
         print("|                                             |")
@@ -578,7 +665,6 @@ def MainMenu(accountIndex,username):
         print("|              Hapus Kontak  (4)              |")
         print("|                                             |")
         print("|                 Log Out  (5)                |")
-        print("|                                             |")
         print("^                                             ^")
         if error:
             print()
@@ -591,6 +677,89 @@ def MainMenu(accountIndex,username):
         else:
             error = True
     return UserChoice
+
+def MainMenuController(DataName,DataNum,target):
+    UserChoice = MainMenu()
+
+    if UserChoice == "1":
+        OpenContact(DataName,DataNum,target)
+    elif UserChoice == "2":
+        AddContact(DataName,DataNum,target)
+    elif UserChoice == "3":
+        EditContact(DataName,DataNum,target)
+    elif UserChoice == "4":
+        DeleteContact(DataName,DataNum,target)
+    elif UserChoice == "5":
+        MainProgram()
+
+def OpenContact(DataName,DataNum,target):
+    errornotification = "   Input yang ada masukkan salah, coba lagi"
+    error = False
+    action = True
+    while action:
+        os.system('cls')
+        print("===============================================")
+        print("|                BUKA  KONTAK                 |")
+        print("===============================================")
+        print("|                                             |")
+        print("|               Cari Kontak (1)               |")
+        print("|                                             |")
+        print("|         Tunjukkan Daftar Kontak (2)         |")
+        print("|                                             |")
+        print("|                Menu Utama (3)               |")
+        print("^                                             ^")
+        if error:
+            print()
+            print(errornotification)
+            print()
+        UserChoice = str(input("                Pilih opsi : "))
+        error = False
+        if UserChoice == "1" or UserChoice == "2" or UserChoice == "3":
+            action = False
+        else:
+            error = True
+    
+    # Percabangan
+    if UserChoice == "1":
+        ShowContact(DataName,DataNum,target)
+    elif UserChoice == "2":
+        ShowContact(DataName,DataNum,target)
+    elif UserChoice == "3":
+        MainMenuController(DataName,DataNum,target)
+        
+
+def ShowContact(DataName,DataNum,target):
+    os.system('cls')
+    if len(DataName) == 0:
+        print("Tidak ada info yang bisa ditampilkan")
+    else:
+        for i in range(int(len(DataName))):
+            print(str(i+1)+". "+str(DataName[i])+", "+str(DataNum[i])+".")
+    print()
+    print("Tekan Enter untuk kembali ke menu utama")
+    x = input()
+    MainMenuController(DataName,DataNum,target)
+
+def SearchContact(DataName,DataNum,target):
+    keyword = "z"
+    IndexName = SearchAlgorithm(DataName,keyword)
+    IndexNum = SearchAlgorithm(DataNum,keyword)
+    IndexResult = IndexName + IndexNum
+    IndexResult = UnDuplicate(IndexResult)
+    if len(IndexResult) == 0:
+        print("Tidak ada info yang bisa ditampilkan")
+    
+
+
+def AddContact(DataName,DataNum,target):
+    print()
+
+def EditContact(DataName,DataNum,target):
+    print()
+
+def DeleteContact(DataName,DataNum,target):
+    print()
+
 
 # Autorun
 
