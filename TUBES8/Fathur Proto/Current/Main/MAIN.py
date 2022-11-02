@@ -740,7 +740,8 @@ def ShowContact(DataName,DataNum,target):
                 print("   *Input tidak valid, coba lagi!")
                 print()
             UserChoice = str(input("        Masukkan pilihan Anda : "))
-                
+            
+            errorInput = True
             IndexResult = []
             for i in range (len(DataName)):
                 IndexResult += [int(i)]
