@@ -740,8 +740,9 @@ def ShowContact(DataName,DataNum,target):
                 print("   *Input tidak valid, coba lagi!")
                 print()
             UserChoice = str(input("        Masukkan pilihan Anda : "))
-            
+
             errorInput = True
+                
             IndexResult = []
             for i in range (len(DataName)):
                 IndexResult += [int(i)]
@@ -763,8 +764,8 @@ def ShowContact(DataName,DataNum,target):
         print("===============================================")
         print("|                                             |")
         print("^                                             ^")
-        print("   Tidak ada info yang bisa ditampilkan")
-        print("Tekan Enter untuk kembali ke menu utama")
+        print("     Tidak ada info yang bisa ditampilkan")
+        print("   Tekan Enter untuk kembali ke menu utama")
         x = input()
         MainMenuController(DataName,DataNum,target)
 
@@ -891,10 +892,13 @@ def EditContact(DataName,DataNum,target,IndexResult):
             for x in range(len(DataName)):
                 if newcontactname == DataName[x]:
                     NameUsed = True
+            if DataName[editTarget] == newcontactname:
+                NameUsed = False
             actioneditname = NameUsed
         
     actioneditnum = True
     NullNum = False
+    error_notNum =False
     while actioneditnum:
         os.system('cls')
         print("===============================================")
@@ -903,9 +907,14 @@ def EditContact(DataName,DataNum,target,IndexResult):
         print("|                                             |")
         print("^                                             ^")
         print("    Target : "+str(DataName[editTarget])+", "+str(DataNum[editTarget]+"."))
-        print()
         if NullNum:
+            print()
             print("    *Nomor telepon tidak boleh kosong")
+            print()
+        if error_notNum:
+            print()
+            print("|        *Cek kembali  nomor  telepon         |")
+            print("|             coba masukkan lagi              |")
             print()
         print("    Nama Baru  : "+newcontactname)
         newcontactnum = input("    Nomor Baru : ")
@@ -913,7 +922,10 @@ def EditContact(DataName,DataNum,target,IndexResult):
         if len(newcontactnum)<1:
             NullNum = True
         else:
-            actioneditnum = False
+            if IsThatANumberPhone(newcontactnum):
+                actioneditnum = False
+            else:
+                error_notNum = True
     
     #confirmation
 
@@ -1032,6 +1044,7 @@ def AddContact(DataName,DataNum,target):
     error_nameadded = False
     error_nameNULL = False
     error_numNULL = False
+    error_notNum = False
 
     while actionname:
         os.system('cls')
@@ -1059,7 +1072,6 @@ def AddContact(DataName,DataNum,target):
             for i in range(len(DataName)):
                 if DataName[i] == name:
                     error_nameadded = True
-
             if error_nameadded:
                 actionname = True
             else:
@@ -1074,6 +1086,10 @@ def AddContact(DataName,DataNum,target):
             print("|                                             |")
             print("|         *Nomor tidak boleh kosong           |")
             print("|           coba gunakan nama lain            |")
+        if error_notNum:
+            print("|                                             |")
+            print("|        *Cek kembali  nomor  telepon         |")
+            print("|             coba masukkan lagi              |")
         print("|                                             |")
         print("|                    Nama :                   |")
         print("^                                             ^")
@@ -1088,7 +1104,10 @@ def AddContact(DataName,DataNum,target):
         if len(number) == 0:
             error_numNULL = True
         else:
-            actionnum = False
+            if IsThatANumberPhone(number):
+                actionnum = False
+            else:
+                error_notNum = True
     
     # confirmation
     actionconfirmation = True
@@ -1150,6 +1169,28 @@ def WriteContactDataLoadingScreen():
             print("^           (====================)            ^")
             print("^                    100%                     ^")
     time.sleep(2)
+
+def IsThatANumberPhone(string):
+    numberphone = "+1234567890"
+    numberconfirm = []
+    for i in range (len(string)):
+        ANumber = False
+        for j in range(11):
+            if string[i] == numberphone[j]:
+                ANumber = True
+        if ANumber:
+            numberconfirm += [1]
+        else:
+            numberconfirm += [0]
+    
+    IsANumber = True
+    for k in range(len(numberconfirm)):
+        if numberconfirm[k] != 1:
+            IsANumber = False
+    
+    return IsANumber
+        
+
 
 # Main program
 def MainProgram():
