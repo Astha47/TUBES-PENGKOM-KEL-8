@@ -476,6 +476,7 @@ def DelAccount(Accountinfo,Accountpass,DataList):
         print("|                                             |")
         print("|                  Username :                 |")
         print("^                                             ^")
+        print("               ", username)
         if error:
             print()
             print(errornotification)
